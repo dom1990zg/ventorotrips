@@ -1,6 +1,5 @@
 "use client";
 
-import PoweredBy from "./components/PoweredBy";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Sailboat, ArrowRight, Briefcase } from "lucide-react";
@@ -21,7 +20,7 @@ export default function Home() {
         className={`absolute inset-0 bg-cover bg-[position:70%_50%] transition-all duration-[1100ms] ease-out ${
           loading ? "scale-110 blur-md brightness-90" : "scale-100"
         }`}
-        style={{ backgroundImage: "url('/hero.jpg')" }}
+        style={{ backgroundImage: "url('/porec.jpg')" }}
       />
 
       {/* Cinematic overlay */}
@@ -116,12 +115,9 @@ export default function Home() {
             </button>
 
           </div>
+
         </div>
       </div>
-      {/* Powered by (footer) */}
-<div className="absolute bottom-6 left-10 z-10">
-  <PoweredBy />
-</div>
     </main>
   );
 }

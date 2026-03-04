@@ -126,6 +126,7 @@ export default function TripsPage() {
 
           <p className="mt-4 text-white/70 max-w-2xl">
             Handpicked boat tours, sunset cruises and coastal adventures.
+            Instant confirmation. Secure payments. Local support.
           </p>
 
           <div className="mt-8">
