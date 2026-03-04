@@ -117,15 +117,15 @@ export default function Home() {
 
         </div>
       </div>
-      {/* Powered by */}
-<div className="fixed bottom-6 left-6 z-[60] flex items-center gap-2 opacity-80 hover:opacity-100 transition">
-  <span className="text-[10px] tracking-[0.22em] text-white/70 uppercase">
+{/* Powered by (desktop only) */}
+<div className="hidden sm:flex items-center gap-2 fixed left-4 bottom-4 z-20">
+  <span className="text-[10px] tracking-[0.28em] uppercase text-white/50">
     Powered by Dom Analytics
   </span>
   <img
     src="/dom-analytics.png"
     alt="Dom Analytics"
-    className="h-6 w-auto"
+    className="h-5 w-auto opacity-80"
   />
 </div>
     </main>
