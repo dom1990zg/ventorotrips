@@ -1,23 +1,12 @@
-import Image from "next/image";
+{/* Powered by (desktop only – da ne smeta na mobu) */}
+<div className="hidden md:flex items-center gap-2 fixed bottom-6 left-6 z-20">
+  <span className="text-[10px] tracking-[0.28em] uppercase text-white/55">
+    Powered by Dom Analytics
+  </span>
 
-export default function PoweredBy() {
-  return (
-    <div className="flex items-center gap-2 opacity-70">
-      <span className="text-[11px] tracking-[0.22em] uppercase text-white/70">
-        Powered by
-      </span>
-
-      {/* Logo wrapper (no extra empty space) */}
-      <div className="relative h-5 w-[70px]">
-        <Image
-          src="/dom-analytics.png"
-          alt="Dom Analytics"
-          fill
-          sizes="70px"
-          className="object-contain"
-          priority={false}
-        />
-      </div>
-    </div>
-  );
-}
+  <img
+    src="/dom-analytics.png"
+    alt="Dom Analytics"
+    className="h-6 w-auto opacity-80"
+  />
+</div>
