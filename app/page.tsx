@@ -52,12 +52,11 @@ export default function Home() {
           </p>
 
           <h1 className="mt-6 text-6xl md:text-7xl font-semibold leading-[1.05] tracking-tight">
-            Discover Poreč from <br className="hidden md:block" />
-            the Sea
+            Fully Experience Porec <br className="hidden md:block" />
           </h1>
 
           <p className="mt-6 text-lg text-white/80 max-w-lg">
-            Private boat tours, sunset cruises and curated coastal experiences
+            Private boat tours, wine tours, sunset cruises and kayak tours
             along the Istrian Riviera.
           </p>
 
@@ -118,6 +117,17 @@ export default function Home() {
 
         </div>
       </div>
+      {/* Powered by */}
+<div className="fixed bottom-6 left-6 z-[60] flex items-center gap-2 opacity-80 hover:opacity-100 transition">
+  <span className="text-[10px] tracking-[0.22em] text-white/70 uppercase">
+    Powered by Dom Analytics
+  </span>
+  <img
+    src="/dom-analytics.png"
+    alt="Dom Analytics"
+    className="h-6 w-auto"
+  />
+</div>
     </main>
   );
 }
