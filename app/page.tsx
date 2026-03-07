@@ -2,6 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Sailboat, ArrowRight, Briefcase, X, Mail, CheckCircle2 } from "lucide-react";
 
 const PARTNER_EMAIL = "info@ventorotrips.com";
@@ -277,7 +278,7 @@ export default function Home() {
 
       <div className="pointer-events-none fixed bottom-4 left-4 z-20 hidden items-center gap-2 sm:flex">
         <span className="text-[10px] uppercase tracking-[0.28em] text-white/50">Powered by Dom Analytics</span>
-        <img src="/dom-analytics.png" alt="Dom Analytics" className="h-5 w-auto opacity-80" />
+        <Image src="/dom-analytics.png" alt="Dom Analytics" width={92} height={20} className="h-5 w-auto opacity-80" />
       </div>
     </main>
   );

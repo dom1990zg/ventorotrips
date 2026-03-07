@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, Clock, MapPin, Star, Check, X } from "lucide-react";
 import { TRIPS } from "@/app/data/trips";
 
@@ -16,6 +17,7 @@ export default async function TripDetails({
         <div className="max-w-lg text-center">
           <p className="text-xs uppercase tracking-[0.35em] text-white/60">Not found</p>
           <h1 className="mt-4 text-3xl font-semibold">Trip not found</h1>
+          <p className="mt-3 text-white/70">This trip doesn’t exist (or the slug is wrong).</p>
           <Link
             href="/trips"
             className="mt-8 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 text-xs uppercase tracking-[0.2em] backdrop-blur-md transition hover:border-white/35 hover:bg-white/15"
@@ -31,7 +33,7 @@ export default async function TripDetails({
   return (
     <main className="relative min-h-screen overflow-hidden text-white">
       <div className="absolute inset-0 -z-10">
-        <img src={trip.images[0]} alt={trip.title} className="h-full w-full object-cover" />
+        <Image src={trip.images[0]} alt={trip.title} fill priority className="object-cover" sizes="100vw" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/90" />
       </div>
 
@@ -52,12 +54,14 @@ export default async function TripDetails({
               {trip.images.map((image, index) => (
                 <div
                   key={image}
-                  className={`overflow-hidden rounded-2xl border border-white/15 ${index === 0 ? "col-span-2" : ""}`}
+                  className={`relative overflow-hidden rounded-2xl border border-white/15 ${index === 0 ? "col-span-2 h-56 md:h-72" : "h-36 md:h-40"}`}
                 >
-                  <img
+                  <Image
                     src={image}
                     alt={`${trip.title} photo ${index + 1}`}
-                    className={`w-full object-cover ${index === 0 ? "h-56 md:h-72" : "h-36 md:h-40"}`}
+                    fill
+                    sizes={index === 0 ? "(max-width: 768px) 100vw, 66vw" : "(max-width: 768px) 50vw, 33vw"}
+                    className="object-cover"
                   />
                 </div>
               ))}
@@ -126,10 +130,32 @@ export default async function TripDetails({
           <aside className="h-fit rounded-3xl border border-white/15 bg-white/10 p-6 backdrop-blur-xl lg:sticky lg:top-8">
             <p className="text-xs uppercase tracking-[0.3em] text-white/60">Booking preview</p>
             <div className="mt-4 text-sm text-white/70">from</div>
-            <div className="text-4xl font-semibold text-white">{trip.priceFrom}</div>
+            <div className="text-4xl font-semibold text-white">€{trip.priceFrom}</div>
+            <div className="mt-2 text-xs text-white/60">per guest • instant confirmation mock</div>
 
-            <button className="mt-7 w-full rounded-full bg-white px-6 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-black transition hover:opacity-90">
+            <div className="mt-6 space-y-2 text-sm text-white/80">
+              <div className="flex items-center justify-between">
+                <span>Duration</span>
+                <span className="font-medium text-white">{trip.duration}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Location</span>
+                <span className="font-medium text-white">{trip.location}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Rating</span>
+                <span className="font-medium text-white">{trip.rating.toFixed(1)} / 5</span>
+              </div>
+            </div>
+
+            <Link
+              href={`/book?trip=${trip.slug}`}
+              className="mt-7 inline-flex w-full items-center justify-center rounded-full bg-white px-6 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-black transition hover:opacity-90"
+            >
               Book now
+            </Link>
+            <button className="mt-3 w-full rounded-full border border-white/30 px-6 py-3 text-xs uppercase tracking-[0.2em] text-white/90 transition hover:bg-white/10">
+              Ask a question
             </button>
           </aside>
         </div>

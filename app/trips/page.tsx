@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { ArrowLeft, Clock, MapPin, Star, SlidersHorizontal } from "lucide-react";
 import { TRIPS } from "@/app/data/trips";
 
-const filterTags = ["All", "Sunset", "Active", "Day trip", "Luxury"];
+const filterTags = ["All", "Sunset", "Private", "Active", "Day trip", "Luxury", "Wildlife"];
 
 export default function TripsPage() {
   const [q, setQ] = useState("");
@@ -29,7 +30,7 @@ export default function TripsPage() {
   return (
     <main className="relative min-h-screen overflow-hidden text-white">
       <div className="absolute inset-0 -z-10">
-        <img src="/trips.jpg" alt="Sea background" className="h-full w-full object-cover" />
+        <Image src="/trips.jpg" alt="Sea background" fill priority className="object-cover" sizes="100vw" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/65 to-black/90" />
       </div>
 
@@ -47,12 +48,16 @@ export default function TripsPage() {
         <div className="mx-auto max-w-6xl">
           <p className="text-xs uppercase tracking-[0.35em] text-white/60">Curated Experiences</p>
           <h1 className="mt-4 text-4xl font-semibold tracking-tight md:text-5xl">Trips in Istria</h1>
+          <p className="mt-4 max-w-2xl text-white/75">
+            Handpicked boat tours, sunset cruises and coastal adventures. Pick your style and find your
+            ideal experience.
+          </p>
 
           <div className="mt-7 grid gap-3 lg:grid-cols-[1fr_auto]">
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search trips (sunset, kayak, rovinj)…"
+              placeholder="Search trips (sunset, private, kayak)…"
               className="w-full rounded-2xl border border-white/20 bg-white/10 px-5 py-3.5 text-sm outline-none backdrop-blur-md placeholder:text-white/50 focus:border-white/40"
             />
             <label className="flex items-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-sm backdrop-blur-md">
@@ -84,6 +89,8 @@ export default function TripsPage() {
               </button>
             ))}
           </div>
+
+          <p className="mt-4 text-sm text-white/65">Showing {filtered.length} experiences</p>
         </div>
       </header>
 
@@ -96,12 +103,17 @@ export default function TripsPage() {
               className="group overflow-hidden rounded-3xl border border-white/15 bg-white/10 backdrop-blur-lg transition hover:border-white/30 hover:bg-white/15"
             >
               <div className="relative h-48 w-full overflow-hidden">
-                <img
+                <Image
                   src={t.images[0]}
                   alt={t.title}
-                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                  className="object-cover transition duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+                <span className="absolute left-4 top-4 rounded-full border border-white/25 bg-black/35 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-white/80 backdrop-blur-md">
+                  {t.tag}
+                </span>
               </div>
 
               <div className="p-6">
@@ -138,6 +150,12 @@ export default function TripsPage() {
             </Link>
           ))}
         </div>
+
+        {filtered.length === 0 ? (
+          <div className="mx-auto mt-8 max-w-6xl rounded-2xl border border-white/15 bg-white/8 p-6 text-sm text-white/70 backdrop-blur-md">
+            No trips match your filters yet. Try another keyword or switch to <strong>All</strong>.
+          </div>
+        ) : null}
       </section>
     </main>
   );
