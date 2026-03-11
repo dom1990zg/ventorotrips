@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import { ArrowLeft, Clock, MapPin, Star, SlidersHorizontal } from "lucide-react";
+import { ArrowLeft, Clock, MapPin, Star, SlidersHorizontal, X, Search } from "lucide-react";
 import { TRIPS } from "@/app/data/trips";
 
 const filterTags = ["All", "Sunset", "Private", "Active", "Day trip", "Luxury", "Wildlife"];
@@ -12,150 +12,221 @@ export default function TripsPage() {
   const [q, setQ] = useState("");
   const [activeTag, setActiveTag] = useState("All");
   const [sortBy, setSortBy] = useState<"recommended" | "price-asc" | "price-desc">("recommended");
+  const [maxPrice, setMaxPrice] = useState(300);
+  const [availableToday, setAvailableToday] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   const filtered = useMemo(() => {
     const base = TRIPS.filter((t) => {
-      const matchesSearch = (t.title + " " + t.location + " " + t.tag)
-        .toLowerCase()
-        .includes(q.toLowerCase());
+      const matchesSearch = (t.title + " " + t.location + " " + t.tag).toLowerCase().includes(q.toLowerCase());
       const matchesTag = activeTag === "All" ? true : t.tag === activeTag;
-      return matchesSearch && matchesTag;
+      const matchesPrice = t.priceFrom <= maxPrice;
+      return matchesSearch && matchesTag && matchesPrice;
     });
-
     if (sortBy === "price-asc") return [...base].sort((a, b) => a.priceFrom - b.priceFrom);
     if (sortBy === "price-desc") return [...base].sort((a, b) => b.priceFrom - a.priceFrom);
     return [...base].sort((a, b) => b.rating - a.rating);
-  }, [q, activeTag, sortBy]);
+  }, [q, activeTag, sortBy, maxPrice, availableToday]);
+
+  const activeFilterCount = (activeTag !== "All" ? 1 : 0) + (maxPrice < 300 ? 1 : 0) + (availableToday ? 1 : 0);
 
   return (
-    <main className="relative min-h-screen overflow-hidden text-white">
-      <div className="absolute inset-0 -z-10">
-        <Image src="/trips.jpg" alt="Sea background" fill priority className="object-cover" sizes="100vw" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/65 to-black/90" />
+    <main className="relative min-h-screen text-white" style={{ background: "linear-gradient(135deg, #0a1628 0%, #07111a 40%, #0d1f12 100%)" }}>
+
+      {/* ── HERO HEADER ── */}
+      <div className="relative overflow-hidden">
+        {/* Background image with parallax feel */}
+        <div className="absolute inset-0 -z-0">
+          <Image src="/trips.jpg" alt="Istria" fill priority className="object-cover object-center scale-105" sizes="100vw" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-[#07111a]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent" />
+        </div>
+
+        {/* Back button */}
+        <div className="relative z-10 px-6 pt-8 md:px-10">
+          <Link href="/" className="group inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/30 px-4 py-2 text-xs uppercase tracking-[0.2em] text-white backdrop-blur-md transition hover:bg-black/50">
+            <ArrowLeft className="h-3.5 w-3.5 transition group-hover:-translate-x-0.5" /> Back
+          </Link>
+        </div>
+
+        {/* Hero text */}
+        <div className="relative z-10 px-6 pb-16 pt-10 md:px-10 md:pb-20 md:pt-12">
+          <div className="mx-auto max-w-6xl">
+            <p className="text-[11px] uppercase tracking-[0.4em] text-[#f0c97a]/80">Curated Experiences</p>
+            <h1 className="mt-3 text-5xl font-bold tracking-tight md:text-7xl">
+              Explore<br />
+              <span className="text-[#f0c97a]">Istria</span>
+            </h1>
+            <p className="mt-4 max-w-lg text-base text-white/70 md:text-lg">
+              Handpicked boat tours, sunset cruises and coastal adventures — all bookable in minutes.
+            </p>
+
+            {/* ── SEARCH BAR ── */}
+            <div className="mt-8 flex max-w-2xl flex-col gap-3 sm:flex-row">
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+                <input
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  placeholder="Search trips, locations, activities…"
+                  className="w-full rounded-2xl border border-white/20 bg-white/10 py-4 pl-11 pr-5 text-sm outline-none backdrop-blur-md placeholder:text-white/40 focus:border-[#f0c97a]/50 focus:bg-white/15 transition"
+                />
+              </div>
+
+              {/* Filter toggle */}
+              <button
+                onClick={() => setShowFilters((v) => !v)}
+                className={`relative flex items-center justify-center gap-2 rounded-2xl border px-5 py-4 text-sm font-medium backdrop-blur-md transition ${showFilters ? "border-[#f0c97a]/60 bg-[#f0c97a]/20 text-[#f0c97a]" : "border-white/20 bg-white/10 text-white hover:bg-white/15"}`}
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                Filters
+                {activeFilterCount > 0 && (
+                  <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#f0c97a] text-[10px] font-bold text-black">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Sort */}
+              <label className="flex items-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-5 py-4 text-sm backdrop-blur-md">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as "recommended" | "price-asc" | "price-desc")}
+                  className="bg-transparent text-sm text-white outline-none"
+                >
+                  <option value="recommended" className="text-black">Recommended</option>
+                  <option value="price-asc" className="text-black">Price: Low → High</option>
+                  <option value="price-desc" className="text-black">Price: High → Low</option>
+                </select>
+              </label>
+            </div>
+
+            {/* ── FILTER PANEL ── */}
+            {showFilters && (
+              <div className="mt-3 max-w-2xl rounded-2xl border border-white/15 bg-black/50 p-5 backdrop-blur-xl">
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-white/70">Max price per person</span>
+                      <span className="font-semibold text-[#f0c97a]">€{maxPrice}{maxPrice === 300 ? "+" : ""}</span>
+                    </div>
+                    <input type="range" min={20} max={300} step={10} value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value))} className="mt-3 w-full accent-[#f0c97a]" />
+                    <div className="mt-1 flex justify-between text-xs text-white/35"><span>€20</span><span>€300+</span></div>
+                  </div>
+                  <div className="flex flex-col justify-center gap-3">
+                    <button
+                      onClick={() => setAvailableToday((v) => !v)}
+                      className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-sm transition ${availableToday ? "border-[#f0c97a]/50 bg-[#f0c97a]/15 text-[#f0c97a]" : "border-white/20 bg-white/5 text-white/70 hover:bg-white/10"}`}
+                    >
+                      <div className={`relative h-4 w-8 rounded-full transition-colors ${availableToday ? "bg-[#f0c97a]" : "bg-white/20"}`}>
+                        <div className={`absolute top-0.5 h-3 w-3 rounded-full bg-white shadow transition-transform ${availableToday ? "translate-x-4" : "translate-x-0.5"}`} />
+                      </div>
+                      Available today
+                    </button>
+                    {activeFilterCount > 0 && (
+                      <button onClick={() => { setActiveTag("All"); setMaxPrice(300); setAvailableToday(false); }} className="flex items-center gap-2 text-xs text-white/40 transition hover:text-white/70">
+                        <X className="h-3 w-3" /> Reset filters
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── TAG PILLS ── */}
+            <div className="mt-5 flex flex-wrap gap-2">
+              {filterTags.map((tag) => (
+                <button
+                  key={tag}
+                  onClick={() => setActiveTag(tag)}
+                  className={`rounded-full border px-4 py-1.5 text-xs font-medium tracking-wide transition ${activeTag === tag ? "border-[#f0c97a]/70 bg-[#f0c97a]/20 text-[#f0c97a]" : "border-white/15 bg-white/8 text-white/60 hover:border-white/30 hover:text-white/90"}`}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="absolute left-6 top-6 z-20 md:left-8 md:top-8">
-        <Link
-          href="/"
-          className="group flex items-center gap-2 rounded-full border border-white/20 bg-black/40 px-4 py-2 text-xs uppercase tracking-[0.2em] text-white backdrop-blur-md transition hover:border-white/40 hover:bg-black/60"
-        >
-          <ArrowLeft className="h-4 w-4 transition group-hover:-translate-x-1" />
-          Back
-        </Link>
-      </div>
-
-      <header className="relative z-10 px-6 pb-10 pt-24 md:px-10 md:pt-28">
+      {/* ── RESULTS ── */}
+      <section className="px-6 pb-24 md:px-10">
         <div className="mx-auto max-w-6xl">
-          <p className="text-xs uppercase tracking-[0.35em] text-white/60">Curated Experiences</p>
-          <h1 className="mt-4 text-4xl font-semibold tracking-tight md:text-5xl">Trips in Istria</h1>
-          <p className="mt-4 max-w-2xl text-white/75">
-            Handpicked boat tours, sunset cruises and coastal adventures. Pick your style and find your
-            ideal experience.
+
+          <p className="mb-6 text-sm text-white/40">
+            {filtered.length} {filtered.length === 1 ? "experience" : "experiences"} found
           </p>
 
-          <div className="mt-7 grid gap-3 lg:grid-cols-[1fr_auto]">
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search trips (sunset, private, kayak)…"
-              className="w-full rounded-2xl border border-white/20 bg-white/10 px-5 py-3.5 text-sm outline-none backdrop-blur-md placeholder:text-white/50 focus:border-white/40"
-            />
-            <label className="flex items-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-sm backdrop-blur-md">
-              <SlidersHorizontal className="h-4 w-4 text-white/70" />
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as "recommended" | "price-asc" | "price-desc")}
-                className="bg-transparent text-sm text-white outline-none"
+          {/* ── TRIP GRID ── */}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {filtered.map((t, i) => (
+              <Link
+                key={t.slug}
+                href={`/trips/${t.slug}`}
+                className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 transition duration-300 hover:border-white/25 hover:shadow-2xl hover:shadow-black/40 hover:-translate-y-1"
               >
-                <option value="recommended" className="text-black">Sort: Recommended</option>
-                <option value="price-asc" className="text-black">Price: Low to high</option>
-                <option value="price-desc" className="text-black">Price: High to low</option>
-              </select>
-            </label>
-          </div>
+                {/* Image — taller */}
+                <div className="relative h-56 w-full overflow-hidden">
+                  <Image
+                    src={t.images[0]}
+                    alt={t.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                    className="object-cover transition duration-500 group-hover:scale-107"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            {filterTags.map((tag) => (
-              <button
-                key={tag}
-                onClick={() => setActiveTag(tag)}
-                className={`rounded-full border px-3.5 py-1.5 text-xs tracking-wide transition ${
-                  activeTag === tag
-                    ? "border-[#d9b382]/60 bg-[#d9b382]/20 text-[#f8e7cd]"
-                    : "border-white/20 bg-white/10 text-white/75 hover:border-white/40"
-                }`}
-              >
-                {tag}
-              </button>
+                  {/* Tag top-left */}
+                  <span className="absolute left-4 top-4 rounded-full border border-white/20 bg-black/40 px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-white/80 backdrop-blur-md">
+                    {t.tag}
+                  </span>
+
+                  {/* Rating top-right */}
+                  <span className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-black/50 px-2.5 py-1 text-xs font-semibold backdrop-blur-md">
+                    <Star className="h-3 w-3 fill-[#f0c97a] text-[#f0c97a]" />
+                    {t.rating.toFixed(1)}
+                    <span className="font-normal text-white/50">({t.reviews})</span>
+                  </span>
+
+                  {/* Price overlaid on image bottom */}
+                  <div className="absolute bottom-4 left-4">
+                    <span className="text-xs text-white/60">from</span>
+                    <p className="text-2xl font-bold leading-none text-white">€{t.priceFrom}</p>
+                  </div>
+                </div>
+
+                {/* Card body */}
+                <div className="p-5">
+                  <h3 className="text-lg font-semibold leading-snug tracking-tight">{t.title}</h3>
+                  <div className="mt-2.5 flex flex-wrap items-center gap-3 text-xs text-white/50">
+                    <span className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" />{t.location}</span>
+                    <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" />{t.duration}</span>
+                  </div>
+
+                  {/* CTA row */}
+                  <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4">
+                    <span className="text-xs text-white/40">{t.reviews} reviews</span>
+                    <span className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-white/8 px-4 py-1.5 text-xs font-medium text-white transition group-hover:border-[#f0c97a]/50 group-hover:bg-[#f0c97a]/15 group-hover:text-[#f0c97a]">
+                      View & Book →
+                    </span>
+                  </div>
+                </div>
+              </Link>
             ))}
           </div>
 
-          <p className="mt-4 text-sm text-white/65">Showing {filtered.length} experiences</p>
+          {/* Empty state */}
+          {filtered.length === 0 && (
+            <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-10 text-center">
+              <p className="text-4xl">🔍</p>
+              <p className="mt-4 text-lg font-semibold">No trips found</p>
+              <p className="mt-2 text-sm text-white/50">Try adjusting your filters or search term.</p>
+              <button onClick={() => { setQ(""); setActiveTag("All"); setMaxPrice(300); setAvailableToday(false); }} className="mt-6 rounded-full border border-white/20 bg-white/10 px-6 py-2.5 text-sm transition hover:bg-white/15">
+                Reset everything
+              </button>
+            </div>
+          )}
         </div>
-      </header>
-
-      <section className="relative z-10 px-6 pb-20 md:px-10">
-        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {filtered.map((t) => (
-            <Link
-              key={t.slug}
-              href={`/trips/${t.slug}`}
-              className="group overflow-hidden rounded-3xl border border-white/15 bg-white/10 backdrop-blur-lg transition hover:border-white/30 hover:bg-white/15"
-            >
-              <div className="relative h-48 w-full overflow-hidden">
-                <Image
-                  src={t.images[0]}
-                  alt={t.title}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                  className="object-cover transition duration-500 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-                <span className="absolute left-4 top-4 rounded-full border border-white/25 bg-black/35 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-white/80 backdrop-blur-md">
-                  {t.tag}
-                </span>
-              </div>
-
-              <div className="p-6">
-                <div className="flex items-center justify-end text-xs text-white/70">
-                  <div className="flex items-center gap-2">
-                    <Star className="h-4 w-4" />
-                    <span className="font-semibold">{t.rating.toFixed(1)}</span>
-                    <span className="text-white/50">({t.reviews})</span>
-                  </div>
-                </div>
-
-                <h3 className="mt-3 text-xl font-semibold tracking-tight">{t.title}</h3>
-
-                <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-white/70">
-                  <span className="inline-flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
-                    {t.location}
-                  </span>
-
-                  <span className="inline-flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    {t.duration}
-                  </span>
-                </div>
-
-                <div className="mt-6 flex items-end justify-between">
-                  <div className="text-sm text-white/70">
-                    from <span className="text-2xl font-semibold text-white">€{t.priceFrom}</span>
-                  </div>
-
-                  <span className="text-sm text-white/80 transition group-hover:text-white">View details →</span>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        {filtered.length === 0 ? (
-          <div className="mx-auto mt-8 max-w-6xl rounded-2xl border border-white/15 bg-white/8 p-6 text-sm text-white/70 backdrop-blur-md">
-            No trips match your filters yet. Try another keyword or switch to <strong>All</strong>.
-          </div>
-        ) : null}
       </section>
     </main>
   );
